@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.claude/
+# Fetched legal text, embeddings, indexes and the LLM cache are rebuilt by the scripts.
+data/

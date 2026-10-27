@@ -1,0 +1,22 @@
+# `docker compose up`, then open http://localhost:8000. The first start fetches the four sources and embeds
+# them on CPU (about 20 minutes); ./data keeps both for the next start. Answers need ANTHROPIC_API_KEY;
+# without it the page still shows the retrieved sections.
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.15.0
+    ports: ["6333:6333"]
+    volumes: ["./data/qdrant-server:/qdrant/storage"]
+
+  api:
+    build: .
+    depends_on: [qdrant]
+    ports: ["8000:8000"]
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+    volumes:
+      - ./data:/app/data
+      - hf-cache:/root/.cache/huggingface
+
+volumes:
+  hf-cache:

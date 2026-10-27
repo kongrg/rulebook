@@ -1,0 +1,30 @@
+name: retrieval-gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      # Models, fetched sources and embeddings are cached; only the first run embeds the corpus.
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/huggingface
+            data
+          key: rulebook-${{ hashFiles('rulebook/corpus/**', 'rulebook/chunking.py') }}
+          restore-keys: rulebook-
+      - run: uv sync --frozen
+      - run: uv run python -m rulebook.corpus
+      - run: uv run pytest -q
+      - name: Fail if recall@10 drops more than 1 point
+        run: uv run python -m eval.run --gate
