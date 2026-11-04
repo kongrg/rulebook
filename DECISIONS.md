@@ -54,7 +54,7 @@ Why Rulebook is built the way it is, and what each choice costs. Every number re
 - `--reuse --generate` re-answers the saved retrieval after a prompt change.
 - Re-running retrieval itself takes over an hour on this CPU, mostly the reranker.
 
-**The question set is a draft.** Claude drafted the questions and labels from the section texts, and they are pending human review (see `eval/LABELLING.md`). Say so if asked. Until the review is done, the numbers measure the system against a careful but unreviewed label set.
+**The question set is a draft.** Claude drafted the questions and labels from the section texts, and they are pending human review (see `eval/LABELLING.md`). Until the review is done, the numbers measure the system against a careful but unreviewed label set.
 
 ## LLM calls
 

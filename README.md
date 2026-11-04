@@ -1,5 +1,7 @@
 # Rulebook
 
+[![retrieval-gate](https://github.com/kongrg/rulebook/actions/workflows/eval.yml/badge.svg)](https://github.com/kongrg/rulebook/actions/workflows/eval.yml)
+
 **Cross-lingual RAG over gambling regulation in four countries.** Ask in English or Greek. The answer comes from the UK, German, Finnish or Greek legal text, cites the sections it used, or says the texts don't cover the question. A retrieval eval on 120 labelled questions measures every step, and CI fails a pull request that makes retrieval worse.
 
 ![Rulebook answering an English question from German law, with the cited GlüStV sections next to the answer](docs/demo-answer.png)
@@ -113,7 +115,7 @@ The page streams the sources as soon as search finishes, then the answer. Hoveri
 
 On every pull request, [`.github/workflows/eval.yml`](.github/workflows/eval.yml) runs the shipped first stage (routed dense search) on the 80 dev questions. It fails the PR if recall@10 drops more than 1 point below [`eval/baseline.json`](eval/baseline.json). Sources, models and embeddings are cached between runs. It gates the first stage rather than the reranker because reranking 80 questions on a CPU runner takes over an hour, and the reranker can only reorder what the first stage found.
 
-The deliberately bad change from the brief, 64-token chunks, run locally:
+A deliberately bad change, 64-token chunks, run locally:
 
 ```text
 $ uv run python -m eval.run --gate
@@ -167,7 +169,7 @@ Fetched by scripts and never committed: the reuse terms differ per source.
 - **The question set is a careful draft, not a human-reviewed benchmark.** Claude drafted it from the section texts. A second, independent model pass audited it without looking at the retriever and fixed 17 of the 120. The human review checklist is in [eval/LABELLING.md](eval/LABELLING.md). Until that review is done, the numbers measure the system against an unreviewed label set.
 - **Models:** Claude Sonnet 5.5 answers, and Claude Haiku 5.5 judges and translates. The experiments ran through headless Claude Code on a subscription. The Anthropic API path (`ANTHROPIC_API_KEY`) uses the same model IDs and prompts, but it hasn't been run.
 - **Latency was measured on a 6-core desktop CPU with other jobs running.** Routed search takes well under a second. Reranking 20 candidates is the slow step, about 50 s per question here and well under a second on a GPU. Answer time includes 2–3 s of Claude Code start-up that an API call wouldn't have.
-- **Docker and CI are written but not yet run.** Docker Desktop on this machine needs a reboot to finish installing, and the repository hasn't been pushed, so GitHub Actions hasn't run the workflow. Local runs of every step are above.
+- **CI and Docker both run.** The first GitHub Actions run passed with the same recall@10 as local runs (87.1). `docker compose up` was checked on 4 Nov 2026: the page loads and search returns the right German section. Answers inside the container need `ANTHROPIC_API_KEY`, which is the untested API path above.
 - **The corpus is a snapshot.** It was fetched on 27 Oct 2026, so rerunning the fetch later can change sections.
 
 ## Layout
